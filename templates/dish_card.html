@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Технологическая карта — {{ dish.title }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #222;
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 8px;
+    }
+
+    .photo-wrap {
+      width: 100%;
+      text-align: center;
+      margin: 12px 0 16px;
+      border: 1px solid #ddd;
+      background: #fff;
+      padding: 8px;
+      min-height: 180px;
+    }
+
+    .photo-wrap img {
+      max-width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    th, td {
+      border: 1px solid #333;
+      padding: 6px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f4f4f4;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .pf-item {
+      margin-bottom: 6px;
+    }
+
+    .pf-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .small-muted {
+      color: #555;
+      font-size: 11px;
+    }
+
+    .footer {
+      margin-top: 14px;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>{{ dish.title }}</h1>
+  <div class="meta">
+    <div><strong>Дата генерации:</strong> {{ generated_at }}</div>
+    <div><strong>Итоговый выход:</strong> {{ dish.final_yield or '—' }}</div>
+  </div>
+
+  <div class="photo-wrap">
+    {% if image_data_uri %}
+      <img src="{{ image_data_uri }}" alt="Фото блюда" />
+    {% else %}
+      <div class="small-muted">Фото не добавлено</div>
+    {% endif %}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 12%">Кол-во</th>
+        <th style="width: 18%">Наименование</th>
+        <th style="width: 35%">П/ф</th>
+        <th style="width: 35%">Описание</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if dish.components %}
+        {% for component in dish.components %}
+          <tr>
+            <td>{{ component.portion_amount or '—' }}</td>
+            <td>{{ component.name }}</td>
+            <td>
+              {% if component.ingredients %}
+                {% for ingredient in component.ingredients %}
+                  <div class="pf-item">• {{ ingredient.name }} — {{ ingredient.amount|round(2) }} г</div>
+                {% endfor %}
+              {% else %}
+                <div class="pf-item">Ингредиенты не добавлены</div>
+              {% endif %}
+              <div class="small-muted"><strong>Выход п/ф:</strong> {{ component.component_yield or '—' }}</div>
+            </td>
+            <td>{{ component.preparation_text or '—' }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="4">Компоненты пока не добавлены.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <div><strong>Комментарий:</strong> {{ dish.comment or '—' }}</div>
+    <div style="margin-top: 8px;"><strong>Голосовое описание (расшифровка):</strong><br>{{ dish.voice_text or '—' }}</div>
+  </div>
+</body>
+</html>
